@@ -1,0 +1,15 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+{{title}} - Encyclopedia
+{%endblock%}
+
+{% block body %}
+
+{% if entry%}
+{{entry}}
+{% else%}
+<h1>Error 404</h1>
+<p>The requested page {{title}} could not be found</p>
+{%endif%}
+{% endblock %}
