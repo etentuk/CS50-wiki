@@ -1,10 +1,10 @@
 import re
 from django.shortcuts import redirect, render
 from django import forms
-from django.urls import reverse
 from . import util
-from django.http.response import HttpResponseRedirect
 from django.contrib import messages
+import random
+import markdown2
 
 
 class SearchForm(forms.Form):
@@ -27,10 +27,14 @@ def index(request):
 
 
 def entry_page(request, title):
-    print('You did not call sir')
+    if(util.get_entry(title)):
+        return render(request, "encyclopedia/entry.html", {
+            "title": title.capitalize(),
+            "entry": markdown2.markdown(util.get_entry(title)),
+        })
     return render(request, "encyclopedia/entry.html", {
         "title": title.capitalize(),
-        "entry": util.get_entry(title),
+        "entry": None
     })
 
 
@@ -61,7 +65,7 @@ def create_page(request):
             for entry in entries:
                 if title.lower() == entry.lower():
                     messages.info(request, 'Page Already Exists')
-                    return create_page(request)
+                    return redirect('encyclopedia:create_page')
             util.save_entry(title, markdown_content)
             return redirect('encyclopedia:entry_page', title)
     return render(request, "encyclopedia/create_page.html", {
@@ -81,3 +85,9 @@ def edit_page(request, title):
         "form": EditPageForm({"markdown_content": entry}),
         "title": title
     })
+
+
+def random_entry(request):
+    entries = util.list_entries()
+    entry = random.choice(entries)
+    return redirect('encyclopedia:entry_page', entry)
